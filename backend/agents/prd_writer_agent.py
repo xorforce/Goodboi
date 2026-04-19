@@ -6,6 +6,8 @@ professional Product Requirements Document in Markdown.
 
 from __future__ import annotations
 
+from typing import Optional
+
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, StateGraph
@@ -69,9 +71,15 @@ Guidelines:
 - Output ONLY the Markdown PRD, no preamble.
 """
 
+DEFAULT_MODEL = "gpt-4o"
 
-def _build_llm() -> ChatOpenAI:
-    return ChatOpenAI(model="gpt-4o", temperature=0.2)
+
+def _build_llm(model: Optional[str] = None) -> ChatOpenAI:
+    return ChatOpenAI(
+        model=model or DEFAULT_MODEL,
+        temperature=0.2,
+        streaming=False,
+    )
 
 
 # ── Graph nodes ──────────────────────────────────────────────────────────
@@ -79,7 +87,8 @@ def _build_llm() -> ChatOpenAI:
 
 def write_prd(state: PRDState) -> dict:
     """Generate the full PRD from the feature summary."""
-    llm = _build_llm()
+    model = state.get("model") or None
+    llm = _build_llm(model)
     messages = [
         SystemMessage(content=SYSTEM_PROMPT),
         HumanMessage(

@@ -8,6 +8,8 @@ Flow:
 
 from __future__ import annotations
 
+from typing import Optional
+
 from langchain_core.messages import HumanMessage
 
 from .feature_request_agent import build_feature_request_graph
@@ -20,7 +22,7 @@ prd_writer_graph = build_prd_writer_graph()
 
 # ── In-memory session store (swap for Redis/DB in production) ────────────
 
-_sessions: dict[str, dict] = {}
+_sessions: dict = {}
 
 
 def _get_session(session_id: str) -> dict:
@@ -39,7 +41,10 @@ def _get_session(session_id: str) -> dict:
 
 
 async def chat(
-    session_id: str, user_message: str, file_content: str | None = None
+    session_id: str,
+    user_message: str,
+    file_content: Optional[str] = None,
+    model: Optional[str] = None,
 ) -> dict:
     """Send a user message to Agent 1 and return the assistant reply.
 
@@ -63,12 +68,13 @@ async def chat(
         "feature_summary": session.get("feature_summary", ""),
         "is_complete": False,
         "session_id": session_id,
+        "model": model or "",
     }
 
     result = feature_request_graph.invoke(state)
 
     # The graph appends only the new AI message; grab the last one.
-    new_messages = result["messages"][len(session["messages"]) :]
+    new_messages = result["messages"][len(session["messages"]):]
     session["messages"].extend(new_messages)
     session["feature_summary"] = result.get(
         "feature_summary", session["feature_summary"]
@@ -84,7 +90,9 @@ async def chat(
     }
 
 
-async def generate_prd(session_id: str) -> dict:
+async def generate_prd(
+    session_id: str, model: Optional[str] = None
+) -> dict:
     """Invoke Agent 2 to write the PRD from the finalised feature summary.
 
     Returns
@@ -103,6 +111,7 @@ async def generate_prd(session_id: str) -> dict:
         "feature_summary": session["feature_summary"],
         "prd_markdown": "",
         "session_id": session_id,
+        "model": model or "",
     }
 
     result = prd_writer_graph.invoke(state)

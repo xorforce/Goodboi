@@ -16,6 +16,7 @@ class FeatureRequestState(TypedDict):
     feature_summary: str  # structured summary built through conversation
     is_complete: bool  # True when user confirms the feature request is ready
     session_id: str
+    model: str  # LLM model ID to use
 
 
 class PRDState(TypedDict):
@@ -24,3 +25,4 @@ class PRDState(TypedDict):
     feature_summary: str  # input from agent 1
     prd_markdown: str  # generated PRD output
     session_id: str
+    model: str  # LLM model ID to use

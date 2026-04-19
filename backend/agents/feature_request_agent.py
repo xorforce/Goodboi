@@ -8,6 +8,8 @@ off to the PRD writer.
 
 from __future__ import annotations
 
+from typing import Optional
+
 from langchain_core.messages import AIMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, StateGraph
@@ -38,9 +40,15 @@ Guidelines:
 - Keep your tone professional but friendly.
 """
 
+DEFAULT_MODEL = "gpt-4o"
 
-def _build_llm() -> ChatOpenAI:
-    return ChatOpenAI(model="gpt-4o", temperature=0.3, streaming=True)
+
+def _build_llm(model: Optional[str] = None) -> ChatOpenAI:
+    return ChatOpenAI(
+        model=model or DEFAULT_MODEL,
+        temperature=0.3,
+        streaming=False,
+    )
 
 
 # ── Graph nodes ──────────────────────────────────────────────────────────
@@ -48,7 +56,8 @@ def _build_llm() -> ChatOpenAI:
 
 def converse(state: FeatureRequestState) -> dict:
     """Main conversation node -- generates the next assistant reply."""
-    llm = _build_llm()
+    model = state.get("model") or None
+    llm = _build_llm(model)
 
     system_parts = [SYSTEM_PROMPT]
     if state.get("file_content"):

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PRD Generator",
-  description: "AI-powered feature request builder and PRD generator",
+  title: "goodboi",
+  description: "goodboi: AI-powered feature request builder and coding handoff dashboard",
 };
 
 export default function RootLayout({

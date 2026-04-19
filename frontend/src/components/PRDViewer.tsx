@@ -3,17 +3,37 @@
 import { useState, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { generatePRD } from "@/lib/api";
+import { generatePRD, type ModelId } from "@/lib/api";
+import ModelSelector from "@/components/ModelSelector";
 
 interface PRDViewerProps {
   sessionId: string;
   featureSummary: string;
+  prdMarkdown?: string;
+  model: ModelId;
+  onModelChange: (model: ModelId) => void;
+  isHandingOff?: boolean;
+  onHandoff?: () => void;
+  onGenerated?: (prdMarkdown: string) => void;
 }
 
-export default function PRDViewer({ sessionId, featureSummary }: PRDViewerProps) {
-  const [prdContent, setPrdContent] = useState<string>("");
+export default function PRDViewer({
+  sessionId,
+  featureSummary,
+  prdMarkdown = "",
+  model,
+  onModelChange,
+  isHandingOff,
+  onHandoff,
+  onGenerated,
+}: PRDViewerProps) {
+  const [prdContent, setPrdContent] = useState<string>(prdMarkdown);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPrdContent(prdMarkdown);
+  }, [prdMarkdown]);
 
   const handleGenerate = useCallback(async () => {
     if (!featureSummary) return;
@@ -21,21 +41,15 @@ export default function PRDViewer({ sessionId, featureSummary }: PRDViewerProps)
     setError(null);
 
     try {
-      const res = await generatePRD(sessionId);
+      const res = await generatePRD(sessionId, model);
       setPrdContent(res.prd_markdown);
+      onGenerated?.(res.prd_markdown);
     } catch {
       setError("Failed to generate PRD. Please try again.");
     }
 
     setIsGenerating(false);
-  }, [sessionId, featureSummary]);
-
-  // Auto-generate when feature summary becomes available
-  useEffect(() => {
-    if (featureSummary && !prdContent && !isGenerating) {
-      handleGenerate();
-    }
-  }, [featureSummary, prdContent, isGenerating, handleGenerate]);
+  }, [sessionId, featureSummary, onGenerated, model]);
 
   // Waiting state
   if (!featureSummary) {
@@ -48,8 +62,8 @@ export default function PRDViewer({ sessionId, featureSummary }: PRDViewerProps)
         </div>
         <h3 className="text-lg font-semibold text-zinc-300 mb-2">PRD Not Ready Yet</h3>
         <p className="text-sm text-zinc-500 max-w-md">
-          Complete the feature request conversation in the Chat tab first.
-          Once the feature request is confirmed, the PRD will be generated automatically.
+          Complete the feature request conversation in the Chat tab first,
+          then use the handoff button to generate the PRD.
         </p>
       </div>
     );
@@ -104,6 +118,29 @@ export default function PRDViewer({ sessionId, featureSummary }: PRDViewerProps)
           Product Requirements Document
         </span>
         <div className="flex items-center gap-2">
+          <ModelSelector model={model} onChange={onModelChange} compact />
+          <button
+            onClick={onHandoff}
+            disabled={!prdContent || isHandingOff}
+            className="px-3 py-1.5 text-xs font-medium bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white rounded-lg transition-colors"
+          >
+            {isHandingOff ? "Handing off..." : "Handoff to Code"}
+          </button>
+          <button
+            onClick={() => {
+              const blob = new Blob([prdContent], { type: "text/markdown;charset=utf-8" });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = "goodboi-prd.md";
+              link.click();
+              URL.revokeObjectURL(url);
+            }}
+            disabled={!prdContent}
+            className="px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded-lg transition-colors disabled:text-zinc-600"
+          >
+            Download
+          </button>
           <button
             onClick={handleGenerate}
             className="px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded-lg transition-colors"
