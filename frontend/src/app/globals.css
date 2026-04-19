@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+:root {
+  --background: #09090b;
+  --foreground: #fafafa;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Markdown prose styling for PRD viewer */
+.prose-prd h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  margin-top: 1.5rem;
+  color: #fafafa;
+}
+.prose-prd h2 {
+  font-size: 1.375rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  margin-top: 1.5rem;
+  color: #e4e4e7;
+  border-bottom: 1px solid #27272a;
+  padding-bottom: 0.5rem;
+}
+.prose-prd h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+  color: #d4d4d8;
+}
+.prose-prd p {
+  margin-bottom: 0.75rem;
+  line-height: 1.7;
+  color: #a1a1aa;
+}
+.prose-prd ul,
+.prose-prd ol {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+  color: #a1a1aa;
+}
+.prose-prd ul {
+  list-style-type: disc;
+}
+.prose-prd ol {
+  list-style-type: decimal;
+}
+.prose-prd li {
+  margin-bottom: 0.25rem;
+  line-height: 1.6;
+}
+.prose-prd strong {
+  color: #e4e4e7;
+  font-weight: 600;
+}
+.prose-prd code {
+  background: #18181b;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: var(--font-mono), monospace;
+}
+.prose-prd hr {
+  border-color: #27272a;
+  margin: 1.5rem 0;
+}
+.prose-prd blockquote {
+  border-left: 3px solid #3f3f46;
+  padding-left: 1rem;
+  color: #71717a;
+  font-style: italic;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}

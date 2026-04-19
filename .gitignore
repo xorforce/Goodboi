@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Node
+node_modules/
+.next/
+out/
+
+# Env
+.env
+.env.local
+
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# OS
+.DS_Store
